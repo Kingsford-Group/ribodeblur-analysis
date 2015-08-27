@@ -1,0 +1,4 @@
+*.o
+*.pyc
+*~
+src/read_len_hist
