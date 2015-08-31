@@ -53,7 +53,7 @@ Since ribo-seq data is usually very sparse, the alignment bam file is converted 
 1. Create high coverage profiles with at least 50% loci have nonzero counts: `python scripts/high_cover_profile.py input_rlen.hist cds_range.txt coverage_ratio count_threshold high_coverage.hist`, where `coverage_ratio = 0.5`, `count_threshold = 0`. The high coverage profiles are output to `high_coverage.hist`. 
 2. Train blur vector on meta profiles: `python scripts/train_vblur_from_meta.py input_rlen.hist cds_range.txt output_dir`. This outputs the learned blur vector for each read length to file `input_rlen.vblur` under folder `output_dir`.
 3. Deblur individual transcript profiles: `python scripts/deblur_transcripts.py high_coverage.hist input_rlen.vblur cds_range.txt output_dir`. This outputs the consensus profile and the deviations to `high_coverage.eps` under folder `output_dir`.
-4. Evaluating deblur results: `python scripts/profile_evaluation.py high_coverage.hist cds_range.txt input_rlen.vblur high_coverage.eps output_dir`. This loads in pre-computed deblur results and plots evaluation results to `output_dir`. This generates Figure 2-4 in the paper.
+4. Evaluating deblur results: `python scripts/profile_evaluation.py high_coverage.hist cds_range.txt input_rlen.vblur high_coverage.eps output_dir`. This loads in pre-computed deblur results and plots evaluation results to `output_dir`. This generates Figure 2, 3, S5 in the paper.
 
 #### blur vectors in `*.vblur`
 Each line starts with the read length, then a colon, then a vector of numbers representing the probability of blurring effect learned from the meta profiles for that read length.
@@ -65,8 +65,8 @@ Synthetic frameshift pipeline
 ------
 1. create synthetic frameshifts by running `python scripts/synthetic_frameshift.py high_coverage.hist cds_range.txt high_coverage_fs.hist`. This produces a set of frameshifted profiles on profiles with high coverage. The outputs are: `high_coverage_fs.hist` for the frameshifted profiles, and `high_coverage_fs.fsp` for the locations of the frameshift point.
 2. Deblur these profiles: `python scripts/deblur_transcripts.py high_coverage_fs.hist input_rlen.vblur cds_range.txt output_dir`. This outputs the consensus profile and the deviations to `high_coverage_fs.eps` under folder `output_dir`.
-1. Evaluate frame distribution: `python scripts/frameshift_evaluation.py high_coverage_fs.hist cds_range.txt input_rlen.vblur high_coverage_fs.eps high_coverage_fs.fsp output_dir`. This produces Figure 5 in the paper.
+1. Evaluate frame distribution: `python scripts/frameshift_evaluation.py high_coverage_fs.hist cds_range.txt input_rlen.vblur high_coverage_fs.eps high_coverage_fs.fsp output_dir`. This produces Figure 4 in the paper.
 
 Codon decoding rate estimation pipeline
 ------
-`python scripts/elongation_rate.py transcript.fasta cds_range.txt high_coverage.hist input_rlen.vblur high_coverage.eps output_dir`. This produces Figure 6 in the paper.
+`python scripts/elongation_rate.py transcript.fasta cds_range.txt high_coverage.hist input_rlen.vblur high_coverage.eps output_dir`. This produces Figure 5 in the paper.
