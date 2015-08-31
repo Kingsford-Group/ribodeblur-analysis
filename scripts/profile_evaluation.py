@@ -132,7 +132,7 @@ def compare_frame(cobs, ptrue, eps, ofname):
     plt.figure()
     ns,bins,patches = plt.hist(frame_before, 25, histtype = 'stepfilled', color='c', edgecolor='c', alpha = 0.4)
     ns,bins,patches = plt.hist(frame_after, 25, histtype = 'stepfilled', color='b', edgecolor='b', hatch='/', alpha = 0.3)
-    plt.xlabel("in-frame percentage", fontsize=16)
+    plt.xlabel("in-frame frequency", fontsize=16)
     plt.ylabel("number of transcripts", fontsize=16)
     plt.legend(["before deblur", "after deblur"], loc="upper left", frameon=False, fontsize=16)
     plt.savefig(ofname, bbox_inches = 'tight')
