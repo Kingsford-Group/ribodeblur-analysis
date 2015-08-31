@@ -1,12 +1,12 @@
 Overview
 ------
-Ribosome profiling quantitatively captures ribosome footprints during translation. The resulting profiles of ribosome locations are widely used to study translational speed. However, an accurate estimation of the ribosome location depends on identifying the actively translated A-site from ribosome profiling reads, a problem that was previously unsolved. Here, we propose a novel method to estimate the ribosome A-site pausing signals from ribosome profiling data. Our model, allows more footprint data to be used, accurately explains the 3-nt periodicity of ribosome profiling reads of various lengths, and results in profiles that are correctly highly skewed towards a single frame within a codon, while being consistent across different read lengths. The method retains sub-codon resolution in the recovered A-site pausing signals, making it possible to detect off-frame translational events, such as frameshifting. Using these refined profiles, we show that wobble pairing codons are translated slower than their synonymous codons with Watson-Crick pairing. Such results provide evidence that protein synthetic rate can be tuned by synonymous codon usage bias.
+Ribosome profiling quantitatively captures ribosome footprints during translation. The resulting profiles of ribosome locations are widely used to study translational speed. However, an accurate estimation of the ribosome location depends on identifying the actively translated A-site from ribosome profiling reads, a problem that was previously unsolved. Here, we propose a novel method to estimate the ribosome A-site position signals from ribosome profiling data. Our model, allows more footprint data to be used, accurately explains the 3-nt periodicity of ribosome profiling reads of various lengths, and results in profiles that are correctly highly skewed towards a single frame within a codon, while being consistent across different read lengths. The method retains sub-codon resolution in the recovered A-site position signals, making it possible to detect off-frame translational events, such as frameshifting. Using these refined profiles, we show that wobble pairing codons are translated slower than their synonymous codons with Watson-Crick pairing. Such results provide evidence that protein synthetic rate can be tuned by synonymous codon usage bias.
 
 Citation
 ------
 This page provides access to the source code and the instructions for running the pipelines to produce the results in the following manuscript:
 
-__Hao Wang, Joel McManus and Carl Kingsford__. *Accurate recovery of ribosome pausing signals reveals slow translation of wobble-pairing codons in yeast*. Under review (2015).
+__Hao Wang, Joel McManus and Carl Kingsford__. *Accurate recovery of ribosome position signals reveals slow translation of wobble-pairing codons in yeast*. Under review (2015).
 
 Deblur pipeline
 ------
