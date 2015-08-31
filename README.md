@@ -26,7 +26,7 @@ Deblur pipeline
 
 #### Processing Pipeline
 1. Download data, align reads to transcriptome by running `scripts/BY_pipeline.sh`.
-Please revise in `BY_pipeline.sh` the line of `$work_dir` to be the working directory of your choice, and the line of `$bin_dir` to be where STAR is installed. The reference fasta is saved as `protein_coding_100_filtered.fasta` under the directory `$work_dir/ref/`. This reference fasta is needed for estimating the decoding time from the ribosome profilng data. A CDS range file `cds_range.txt` is also automatically generated under the directory `$work_dir/ref/`. This is a plain text file that defines the start and stop of the coding regions (CDS) for each transcript. This file is needed for all of the analysis below.
+Please change in `BY_pipeline.sh` the line of `$work_dir` to be the working directory of your choice, and the line of `$bin_dir` to be where STAR is installed. The reference fasta is saved as `protein_coding_100_filtered.fasta` under the directory `$work_dir/ref/`. This reference fasta is needed for estimating the decoding time from the ribosome profilng data. A CDS range file `cds_range.txt` is also automatically generated under the directory `$work_dir/ref/`. This is a plain text file that defines the start and stop of the coding regions (CDS) for each transcript. This file is needed for all of the analysis below.
 2. Prepare alignments to be a list of position, read count list by running `src/read_len_hist align.bam input_rlen.hist`. This produces file `input_rlen.hist`. The format of `input_rlen.hist` can be found below.
 3. Plot meta profiles: `python scripts/meta_profile.py input_rlen.hist cds_range.txt output_dir`. This produces all subfigures for Figure S1. 
 
