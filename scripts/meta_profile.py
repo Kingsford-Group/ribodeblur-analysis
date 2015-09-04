@@ -203,7 +203,7 @@ def plot_rlen_hist_pipe():
     hist_fn = sys.argv[1]
     cds_txt = sys.argv[2]
     odir = sys.argv[3]
-    imax = 50
+    # imax = 50
     min_sample_cnt = 100
     ensure_dir(odir)
     cds_range = get_cds_range(cds_txt)
@@ -212,10 +212,11 @@ def plot_rlen_hist_pipe():
     rlen2cnt = get_length_count(tlist)
     rlen2portion = get_length_distribution(rlen2cnt, rlen_min, rlen_max)
     tot_portion = 0
-    for rlen in xrange(25, 30):
+    for rlen in xrange(25, 36):
         print "{0}-mers: {1:.2%}".format(rlen, rlen2portion[rlen])
         tot_portion += rlen2portion[rlen]
     print "total: {0:.2%}".format(tot_portion)
+    exit(1)
     sframe = get_frame_str_from_tlist(tlist, cds_range)
     meta_hist = create_rlen_meta_profile(tlist, cds_range, tid_select, utr5_offset, imax)
     fn_prefix = odir+"/"+get_file_core(hist_fn)+"_start_{0}".format(imax)
