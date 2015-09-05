@@ -77,7 +77,8 @@ def get_frame_str_vec(vec):
 def get_frame_str(pobs):
     return { rlen: get_frame_str_vec(vec) for rlen, vec in pobs.iteritems() }
 
-def get_frame_str_from_tlist(tlist, cds_range):
+
+def get_frame_from_tlist(tlist, cds_range):
     sframe = {}
     for rid in tlist:
         for rlen in tlist[rid]['prof']:
@@ -86,8 +87,11 @@ def get_frame_str_from_tlist(tlist, cds_range):
             for pos, cnt in tlist[rid]['prof'][rlen]:
                 sframe.setdefault(rlen, np.zeros(3))
                 sframe[rlen][(pos-start)%3] += cnt
-    return { rlen: "{0:.2%} {1:.2%} {2:.2%}".format(f[0]/sum(f), f[1]/sum(f), f[2]/sum(f)) \
-             for rlen,f in sframe.iteritems() }
+    return sframe
+                
+def get_frame_str_from_tlist(tlist, cds_range):
+    sframe = get_frame_from_tlist(tlist, cds_range)
+    return { rlen: "{0:.2%} {1:.2%} {2:.2%}".format(f[0]/sum(f), f[1]/sum(f), f[2]/sum(f)) for rlen,f in sframe.iteritems() }
 
 #=============================
 # transcript pre-selection
@@ -212,11 +216,10 @@ def plot_rlen_hist_pipe():
     rlen2cnt = get_length_count(tlist)
     rlen2portion = get_length_distribution(rlen2cnt, rlen_min, rlen_max)
     tot_portion = 0
-    for rlen in xrange(25, 36):
+    for rlen in xrange(rlen_min, rlen_max+1):
         print "{0}-mers: {1:.2%}".format(rlen, rlen2portion[rlen])
         tot_portion += rlen2portion[rlen]
     print "total: {0:.2%}".format(tot_portion)
-    exit(1)
     sframe = get_frame_str_from_tlist(tlist, cds_range)
     meta_hist = create_rlen_meta_profile(tlist, cds_range, tid_select, utr5_offset, imax)
     fn_prefix = odir+"/"+get_file_core(hist_fn)+"_start_{0}".format(imax)

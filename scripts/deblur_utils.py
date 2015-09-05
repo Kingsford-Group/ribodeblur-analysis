@@ -178,7 +178,7 @@ def build_blur_A(blur_width, k, ptrue):
     pblur[i] = sum_j(-w,w) vblur[j]ptrue[i-j]
     adjust j to be (0,2w+1):
     pblur[i] = sum_j(0,2w+1) vblur[j]ptrue[i+w-j]
-    k is used to shift left this center location i to an offset
+    where ptrue is shifted right by k to align with pobs
     pblur is built to have the same length as ptrue
     """
     half_width = blur_width/2
