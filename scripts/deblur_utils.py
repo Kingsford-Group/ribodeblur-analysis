@@ -534,7 +534,7 @@ def recover_true_profile(cobs, b, low, percentile, converge_cutoff, ofname=None)
         obs_list.append(obj_obs)
         true_list.append(obj_true)
         tot_list.append(obj_tot)
-        if i > 10:
+        if i > 50:
             print "fail to converge"
             return None, None
     # sys.stdout.write("\n")
