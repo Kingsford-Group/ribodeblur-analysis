@@ -166,12 +166,13 @@ if __name__ == "__main__":
     tlist = parse_rlen_hist(hist_fn)
     print "get pre-computed blur vector"
     b = read_vblur(vblur_fname)
+    vrlen_min, vrlen_max = get_rlen_range_from_vblur(b)
     print "get pre-computed deblur results"
     ptrue, eps = read_essentials(deblur_fname)
     print "construct cobs all at once"
     tprofile = get_transcript_profiles(tlist, cds_range, utr5_offset, utr3_offset)
     # cobs = build_cobs_with_shifts(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, klist)
-    cobs = construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max)
+    cobs = construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max)
     print "construct ctrue all at once"
     ctrue_rlen = batch_build_ctrue(ptrue, eps, cobs)
     mprof = { tid: merge_profiles(plist) for tid, plist in ctrue_rlen.iteritems() }
