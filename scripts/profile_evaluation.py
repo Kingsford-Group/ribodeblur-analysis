@@ -22,7 +22,7 @@ def build_cobs_per_rlen_with_shifts(pos_list, start, end, offset):
     """ shift left with offset"""
     profile = np.zeros(end-start+1)
     for pos, cnt in pos_list:
-        idx_adj = pos-start+offset
+        idx_adj = pos-start-offset
         if idx_adj < 0 or idx_adj >= len(profile): continue
         profile[idx_adj] = cnt
     return profile
@@ -238,12 +238,13 @@ if __name__ == "__main__":
     tlist = parse_rlen_hist(hist_fn)
     print "get pre-computed blur vector"
     b = read_vblur(vblur_fname)
+    vrlen_min, vrlen_max = get_rlen_range_from_vblur(b)
     print "get pre-computed deblur results"
     ptrue, eps = read_essentials(deblur_fname)
     print "construct cobs all at once"
     tprofile = get_transcript_profiles(tlist, cds_range, utr5_offset, utr3_offset)
-    cobs = construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max)
-    cobs_shift = build_cobs_with_shifts(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, klist)
+    cobs = construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max)
+    cobs_shift = build_cobs_with_shifts(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max, klist)
     print "compare least square of pobs fitting"
     compare_pobs_fit(b, klist, cobs, ptrue, eps, odir+fname+"_cmp_pobs.pdf")
     print "compare frame distribution"
