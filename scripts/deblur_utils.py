@@ -475,14 +475,13 @@ def train_vblur_from_meta_profiles(cobs, klist, low, percentile, converge_cutoff
     b, ptrue, eps = train_blur_vec(cobs, ptrue, abd, b, klist, low, percentile, converge_cutoff, pos_list, estep, ofname)
     return b, ptrue, eps
 
-def recover_true_profile(cobs, b, low, percentile, converge_cutoff, ofname=None):
+def recover_true_profile(cobs, klist, b, low, percentile, converge_cutoff, ofname=None):
     abd = get_abundance(cobs)
     ptrue = initiate_ptrue(cobs)
     if np.all(ptrue==0):
         print "transcript too sparse"        
         return None, None
     pobs = { rlen : prof/float(abd[rlen]) for rlen,prof in cobs.iteritems() }
-    klist = { rlen: rlen - 28 for rlen in cobs }
     select = select_loci(cobs, b, klist, percentile, low, False)
     obs_list = []
     true_list = []
@@ -504,7 +503,7 @@ def recover_true_profile(cobs, b, low, percentile, converge_cutoff, ofname=None)
         # M-step: paramter estimation
         for rlen in pobs:
             vblur = b[rlen]
-            k = rlen - 28
+            k = klist[rlen]
             selected = select[rlen]
             # true signal deblur
             eps = deblur_eps(vblur, k, pobs[rlen], ptrue, selected, False)

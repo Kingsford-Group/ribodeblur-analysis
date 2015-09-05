@@ -39,23 +39,24 @@ def batch_Asite_recovery(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min
     return ptrue, eps
 
 class single_transcript_asite(object):
-    def __init__(self, blur_vec, converge_cutoff):
+    def __init__(self, blur_vec, klist, converge_cutoff):
         self.b = blur_vec
+        self.k = klist
         self.c = converge_cutoff
     def __call__(self, params):
         tid = params[0]
         cobs = params[1]
-        ptrue, eps = recover_true_profile(cobs, self.b, 0, 100, self.c)
+        ptrue, eps = recover_true_profile(cobs, self.k, self.b, 0, 100, self.c)
         return tid, ptrue, eps
 
-def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, blur_vec, converge_cutoff, nproc):
+def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, blur_vec, klist, converge_cutoff, nproc):
     cobs_all = np.array([ build_cobs_for_deblur(prof, utr5_offset, (cds_range[tid][1]-cds_range[tid][0])+utr3_offset, rlen_min, rlen_max) for tid,prof in tprofile.iteritems() ])
     cobs_len_all = np.array(map(len, cobs_all))
     tid_all = np.array(tprofile.keys())
     cobs_in = cobs_all[cobs_len_all!=0]
     tid_in = tid_all[cobs_len_all!=0]
     pool = Pool(processes=nproc)
-    results = [ r for r in pool.imap_unordered(single_transcript_asite(blur_vec, converge_cutoff), zip(tid_in, cobs_in), 10) ]
+    results = [ r for r in pool.imap_unordered(single_transcript_asite(blur_vec, klist, converge_cutoff), zip(tid_in, cobs_in), 10) ]
     pool.close()
     pool.join()
     tid_list, ptrue_list, eps_list = zip(*results)
@@ -85,7 +86,7 @@ def main():
     # build profile for each transcript per read length
     tprofile = get_transcript_profiles(tlist, cds_range, utr5_offset, utr3_offset)
     print "batch A-site recovery"
-    ptrue, eps = batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max, b, converge_cutoff, nproc)
+    ptrue, eps = batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max, b, klist, converge_cutoff, nproc)
     ofname = odir+get_file_core(hist_fn)+".eps"
     write_essentials(ptrue, eps, ofname)
 
