@@ -66,7 +66,7 @@ def meta_pipeline(tlist, cds_range, istart, istop, rlen_min, rlen_max, converge_
     vrlen_min, vrlen_max = get_vblur_rlen_range(mobs)
     mobs_hc = { rlen:mobs[rlen] for rlen in xrange(vrlen_min, vrlen_max+1) } 
     estep = True
-    b, ptrue, eps = train_vblur_from_meta_profiles(mobs_hc, low, percentile, converge_cutoff, estep, obj_pdf)
+    b, ptrue, eps = train_vblur_from_meta_profiles(mobs_hc, klist, low, percentile, converge_cutoff, estep, obj_pdf)
     return b, ptrue, eps
     
 def main():

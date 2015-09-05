@@ -370,7 +370,7 @@ def compute_tot_obj(ptrue, abd, pobs, klist, select, b, eps_rlen, train):
         obj_tot += abd[rlen] * eps_tot
     return obj_tot, obj_obs, obj_true
 
-def train_blur_vec(cobs, ptrue, abd, b, low, percentile, converge_cutoff=1e-1, pos_list=None, estep=True, ofname=None):
+def train_blur_vec(cobs, ptrue, abd, b, klist, low, percentile, converge_cutoff=1e-1, pos_list=None, estep=True, ofname=None):
     """
     EM frame work on training vblur
     Max params: vblur, ptrue_eps 
@@ -380,7 +380,6 @@ def train_blur_vec(cobs, ptrue, abd, b, low, percentile, converge_cutoff=1e-1, p
     true_list = []
     tot_list = []
     pobs = { rlen : prof/float(abd[rlen]) for rlen,prof in cobs.iteritems() }
-    klist = { rlen: rlen - 28 for rlen in cobs }
     select = select_loci(cobs, b, klist, percentile, low)
     # initial evaluation of objective function
     obj_tot, obj_obs, obj_true = compute_tot_obj(ptrue, abd, pobs, klist, select, b, None, True)
@@ -451,7 +450,7 @@ def train_blur_vec(cobs, ptrue, abd, b, low, percentile, converge_cutoff=1e-1, p
     print "final E-step obj: ", tot_list[-1]
     return b, ptrue, eps_rlen
 
-def train_vblur_from_meta_profiles(cobs, low, percentile, converge_cutoff = 1e-1, estep=True, ofname=None):
+def train_vblur_from_meta_profiles(cobs, klist, low, percentile, converge_cutoff = 1e-1, estep=True, ofname=None):
     """wrapper function to train vblur on meta profiles"""
     abd = get_abundance(cobs)
     ptrue = initiate_ptrue(cobs)
@@ -463,11 +462,11 @@ def train_vblur_from_meta_profiles(cobs, low, percentile, converge_cutoff = 1e-1
         # HARD CODED outlier percentile
         threshold = np.percentile(cobs[rlen], percentile)
         # HARD CODED profile shift offset compare to read length 28
-        k = rlen - 28
+        k = klist[rlen]
         ctrue = ptrue * abd[rlen]
         vblur = single_kernel_width(ctrue, cobs[rlen], k, threshold, pos_list, False)
         b[rlen] = vblur
-    b, ptrue, eps = train_blur_vec(cobs, ptrue, abd, b, low, percentile, converge_cutoff, pos_list, estep, ofname)
+    b, ptrue, eps = train_blur_vec(cobs, ptrue, abd, b, klist, low, percentile, converge_cutoff, pos_list, estep, ofname)
     return b, ptrue, eps
 
 def recover_true_profile(cobs, b, low, percentile, converge_cutoff, ofname=None):
