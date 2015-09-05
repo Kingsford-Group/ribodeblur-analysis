@@ -55,6 +55,7 @@ def get_pos_hist(pos_hist, start, end):
 def get_cobs(pos_hist, rlstart, rlend, istart, iend):
     pobs = {}
     for rlen in xrange(rlstart, rlend+1):
+        if rlen not in pos_hist: continue
         pobs[rlen] = get_pos_hist(pos_hist[rlen], istart, iend)
     return pobs
 
@@ -216,7 +217,7 @@ def plot_rlen_hist_pipe():
     rlen2cnt = get_length_count(tlist)
     rlen2portion = get_length_distribution(rlen2cnt, rlen_min, rlen_max)
     tot_portion = 0
-    for rlen in xrange(rlen_min, rlen_max+1):
+    for rlen in sorted(rlen2portion.keys()):
         print "{0}-mers: {1:.2%}".format(rlen, rlen2portion[rlen])
         tot_portion += rlen2portion[rlen]
     print "total: {0:.2%}".format(tot_portion)
