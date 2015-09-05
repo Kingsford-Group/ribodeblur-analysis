@@ -7,6 +7,10 @@ from meta_profile import *
 #=============================
 # utils
 #=============================
+def get_rlen_range_from_vblur(vblur):
+    rlen_list = sorted(vblur.keys())
+    return rlen_list[0], rlen_list[-1]
+
 def get_abundance(pobs):
     return { rlen: sum(p) for rlen, p in pobs.iteritems() }
 

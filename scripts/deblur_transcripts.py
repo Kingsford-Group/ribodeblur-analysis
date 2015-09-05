@@ -79,9 +79,7 @@ def main():
     ensure_dir(odir)
     print "get pre-computed blur vector"
     b = read_vblur(vblur_txt)
-    rlen_list = sorted(b.keys())
-    vrlen_min = rlen_list[0]
-    vrlen_max = rlen_list[-1]
+    vrlen_min, vrlen_max = get_rlen_range_from_vblur(b)
     cds_range = get_cds_range(cds_txt)
     tlist = parse_rlen_hist(hist_fn)
     # build profile for each transcript per read length
