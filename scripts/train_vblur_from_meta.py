@@ -44,12 +44,14 @@ def get_vblur_rlen_range(mobs):
     vrlen_min = rlen_min
     vrlen_max = rlen_max
     for rlen in xrange(rlen_min, rlen_max+1):
+        if rlen not in mobs: continue
         vrlen_min = rlen
         min_frame_cnt = get_min_mean_frame_cnt(mobs[rlen],100)
         max_frame_portion = get_max_frame_percent(mobs[rlen], 100)
         if min_frame_cnt >= lowest_frame_cnt and max_frame_portion >= lowest_frame_percent:
             break
     for rlen in xrange(rlen_max, rlen_min, -1):
+        if rlen not in mobs: continue
         vrlen_max = rlen
         min_frame_cnt = get_min_mean_frame_cnt(mobs[rlen],100)
         max_frame_portion = get_max_frame_percent(mobs[rlen], 100)
