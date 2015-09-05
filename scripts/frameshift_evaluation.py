@@ -35,12 +35,13 @@ if __name__ == "__main__":
     tlist = parse_rlen_hist(hist_fn)
     print "get pre-computed blur vector"
     b = read_vblur(vblur_fname)
+    vrlen_min, vrlen_max = get_rlen_range_from_vblur(b)
     print "get pre-computed deblur results"
     ptrue, eps = read_essentials(deblur_fname)
     shift_points = read_shift_points(shiftpoint_fname)
     print "construct cobs all at once"
     tprofile = get_transcript_profiles(tlist, cds_range, utr5_offset, utr3_offset)
-    cobs = construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max)
+    cobs = construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max)
 
     tid_list = np.array(cobs.keys())
     tlen = np.array([ cds_range[tid][1]-cds_range[tid][0] for tid in tid_list])
