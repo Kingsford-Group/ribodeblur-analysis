@@ -77,14 +77,17 @@ def main():
     cds_txt = sys.argv[3]
     odir = sys.argv[4]
     ensure_dir(odir)
-    cds_range = get_cds_range(cds_txt)
-    tlist = parse_rlen_hist(hist_fn)
     print "get pre-computed blur vector"
     b = read_vblur(vblur_txt)
+    rlen_list = sorted(b.keys())
+    vrlen_min = rlen_list[0]
+    vrlen_max = rlen_list[-1]
+    cds_range = get_cds_range(cds_txt)
+    tlist = parse_rlen_hist(hist_fn)
     # build profile for each transcript per read length
     tprofile = get_transcript_profiles(tlist, cds_range, utr5_offset, utr3_offset)
     print "batch A-site recovery"
-    ptrue, eps = batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, b, converge_cutoff, nproc)
+    ptrue, eps = batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max, b, converge_cutoff, nproc)
     ofname = odir+get_file_core(hist_fn)+".eps"
     write_essentials(ptrue, eps, ofname)
 
