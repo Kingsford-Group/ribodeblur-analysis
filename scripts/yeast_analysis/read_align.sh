@@ -2,9 +2,14 @@
 # pre-compiled STAR indices should be provided otherwise STAR won't run
 riboseq_fq=$1
 align_dir=$2
+adapter=$3
 if [ -z "${riboseq_fq}" ] || [ -z "${align_dir}" ]; then
-    echo "Usage: ./read_align.sh ribo-seq.fq.gz output_dir"
+    echo "Usage: ./read_align.sh ribo-seq.fq.gz output_dir adapter(optional)"
     exit
+fi
+
+if [ -z "${adapter}" ]; then
+    adapter=N
 fi
 #=============================
 # default parameters
@@ -16,7 +21,6 @@ mkdir -p ${align_dir}
 contaminant_idx=/home/hw1/scratch/scratch2/ribomap-playground/yeast/StarIndex/contaminant/
 transcript_idx=/home/hw1/scratch/scratch2/ribomap-playground/yeast/StarIndex/by_transcript/
 nproc=30
-adapter=N
 #============================================
 # step 1: filter rrna
 #============================================
