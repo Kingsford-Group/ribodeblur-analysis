@@ -233,7 +233,9 @@ def single_kernel_width(ptrue, pobs, k, threshold, pos_list=None, re=False):
     """
     L_opt = np.inf
     vblur_opt = [1]
-    for w in xrange(2,31):
+    # for w in xrange(2,31):
+    # fix w to be 31
+    for w in [31]:
         A = build_blur_A(w, k, ptrue)
         blur_start, blur_end = get_blur_range(w, k, len(ptrue))
         selected = filter_cobs(pobs, -1, threshold, blur_start, blur_end, pos_list)
