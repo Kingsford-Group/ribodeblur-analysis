@@ -58,6 +58,11 @@ def get_vblur_rlen_range(mobs):
         # print "{0} {1:.2%} {2:.0f}".format(rlen, max_frame_portion, min_frame_cnt)
         if min_frame_cnt >= lowest_frame_cnt and max_frame_portion >= lowest_frame_percent:
             break
+    # for rlen in xrange(rlen_min, rlen_max+1):
+    #     if rlen not in mobs: continue
+    #     min_frame_cnt = get_min_mean_frame_cnt(mobs[rlen],100)
+    #     max_frame_portion = get_max_frame_percent(mobs[rlen], 100)
+    #     print "read length: {0} min frame cnt: {1:.0f} frame skew: {2:.2%}".format(rlen, min_frame_cnt, max_frame_portion)
     return vrlen_min, vrlen_max
 
 def meta_pipeline(tlist, cds_range, istart, istop, rlen_min, rlen_max, converge_cutoff, obj_pdf):
