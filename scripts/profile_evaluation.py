@@ -2,7 +2,6 @@
 import numpy as np
 import scipy.stats
 from multiprocessing import Pool
-from deblur_transcripts import build_cobs_for_deblur
 from footprint_hist_parser import parse_rlen_hist, get_transcript_profiles
 from deblur_utils import *
 from deblur_result_io import *
