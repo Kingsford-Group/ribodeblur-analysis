@@ -7,19 +7,6 @@ from deblur_utils import *
 from deblur_result_io import *
 from global_params import *
 
-def build_profile_from_list(pos_list, start, end):
-    profile = np.zeros(end-start+1)
-    for pos, cnt in pos_list:
-        profile[pos-start] = cnt
-    return profile
-
-def build_cobs_for_deblur(clist, start, end, rlen_min, rlen_max):
-    cobs = {}
-    for rlen, pos_list in clist.iteritems():
-        if rlen < rlen_min or rlen > rlen_max: continue
-        cobs[rlen] = build_profile_from_list(pos_list, start, end)
-    return cobs
-    
 def batch_Asite_recovery(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, blur_vec, converge_cutoff):
     ptrue = {}
     eps = {}

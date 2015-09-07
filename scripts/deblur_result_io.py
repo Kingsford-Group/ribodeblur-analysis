@@ -77,11 +77,46 @@ def read_essentials(fname):
     tf.close()
     return ptrue, eps
 
+def write_cds_profile(base_prof, ofname):
+    tf = open(ofname, 'wb')
+    i = 0
+    for tid, prof in base_prof.iteritems():
+        text = [ "tid: {0}\n".format(tid), 
+                 "{0}\n".format("\t".join(map(str, prof))) ]
+        tf.writelines(text)
+        i += 1
+        sys.stdout.write("processed transcripts {0}.\t\r".format(i))
+        sys.stdout.flush()
+    sys.stdout.write("\n")
+    tf.close()
+
+def read_cds_profile(fname):
+    tf = open(fname)
+    base_prof = {}
+    line = tf.readline()
+    i = 0
+    while line:
+        if line.startswith("tid: "):
+            i += 1
+            tid = line.lstrip("tid: ").rstrip("\n")
+            line = tf.readline()
+            prof = map(float, line.rstrip("\n").split("\t"))
+            base_prof[tid] = prof
+            line = tf.readline()
+            sys.stdout.write("processed transcripts {0}.\t\r".format(i))
+            sys.stdout.flush()
+    sys.stdout.write("\n")
+    tf.close()
+    return base_prof
+
+#=============================
+# format conversion
+#=============================
 def build_cobs_per_rlen_with_shifts(pos_list, start, end, offset):
     """ shift left with offset"""
     profile = np.zeros(end-start+1)
     for pos, cnt in pos_list:
-        idx_adj = pos-start+offset
+        idx_adj = pos-start-offset
         if idx_adj < 0 or idx_adj >= len(profile): continue
         profile[idx_adj] = cnt
     return profile
@@ -103,4 +138,17 @@ def build_cobs_with_shifts(tprofile, cds_range, utr5_offset, utr3_offset, rlen_m
         sys.stdout.write("processed transcript {0}.\t\r".format(i))
         sys.stdout.flush()
     sys.stdout.write("\n")
+    return cobs
+
+def build_profile_from_list(pos_list, start, end):
+    profile = np.zeros(end-start+1)
+    for pos, cnt in pos_list:
+        profile[pos-start] = cnt
+    return profile
+
+def build_cobs_for_deblur(clist, start, end, rlen_min, rlen_max):
+    cobs = {}
+    for rlen, pos_list in clist.iteritems():
+        if rlen < rlen_min or rlen > rlen_max: continue
+        cobs[rlen] = build_profile_from_list(pos_list, start, end)
     return cobs

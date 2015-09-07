@@ -6,7 +6,7 @@ from deblur_utils import *
 from deblur_result_io import *
 from meta_profile import get_frame_str_vec
 from footprint_hist_parser import get_cds_range, parse_rlen_hist, get_transcript_profiles
-from profile_evaluation import get_frame_portion, construct_all_cobs, build_cobs_with_shifts
+from profile_evaluation import get_frame_portion, construct_all_cobs
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -17,9 +17,6 @@ rcParams['xtick.major.size'] = 5
 rcParams['ytick.major.size'] = 5
 rcParams['pdf.fonttype'] = 42
 rcParams['ps.fonttype'] = 42
-
-def batch_build_ctrue(ptrue, eps, cobs):
-    return { tid: estimate_ctrue(ptrue[tid], eps[tid], cobs[tid]) for tid in ptrue }
 
 def batch_distance(tid_list, cobs, ctrue):
     dist = []
