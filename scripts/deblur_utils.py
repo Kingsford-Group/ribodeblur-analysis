@@ -48,15 +48,6 @@ def estimate_ctrue(ptrue, eps, cobs):
 def batch_build_ctrue(ptrue, eps, cobs):
     return { tid: estimate_ctrue(ptrue[tid], eps[tid], cobs[tid]) for tid in ptrue }
 
-def batch_distance(tid_list, cobs, ctrue):
-    dist = []
-    for tid in tid_list:
-        obs_merge = merge_profiles(cobs[tid])
-        true_merge = merge_profiles(ctrue[tid])
-        diff = obs_merge - true_merge
-        dist.append( np.linalg.norm(diff)/sum(obs_merge) )
-    return np.array(dist)
-
 def compute_total_least_square(vblur, k, pobs, ptrue, eps, selected, train=True):
     """
     sum_i (pobs[i] - ptrue[i-k]*vblur)^2 + sum_j (ptrue[j]-ptrue_merge[j])^2 
@@ -539,7 +530,7 @@ def recover_true_profile(cobs, klist, b, low, percentile, converge_cutoff, ofnam
         tot_list.append(obj_tot)
         if i > 50:
             print "fail to converge"
-            return None, None
+            return ptrue, eps_rlen
     # sys.stdout.write("\n")
     plot_obj(tot_list, obs_list, true_list, ofname)    
     # print "final M-step obj: ", tot_list[-1]

@@ -18,34 +18,6 @@ rcParams['ytick.major.size'] = 5
 rcParams['pdf.fonttype'] = 42
 rcParams['ps.fonttype'] = 42
 
-def build_cobs_per_rlen_with_shifts(pos_list, start, end, offset):
-    """ shift left with offset"""
-    profile = np.zeros(end-start+1)
-    for pos, cnt in pos_list:
-        idx_adj = pos-start-offset
-        if idx_adj < 0 or idx_adj >= len(profile): continue
-        profile[idx_adj] = cnt
-    return profile
-
-def build_cobs_per_transcript_with_shifts(clist, start, end, rlen_min, rlen_max, klist):
-    cobst = {}
-    for rlen, pos_list in clist.iteritems():
-        if rlen < rlen_min or rlen > rlen_max: continue
-        cobst[rlen] = build_cobs_per_rlen_with_shifts(pos_list, start, end, klist[rlen])
-    return cobst
-
-def build_cobs_with_shifts(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, klist):
-    cobs = {}
-    i = 0
-    for tid, prof in tprofile.iteritems():
-        start, end = cds_range[tid]
-        cobs[tid] = build_cobs_per_transcript_with_shifts(prof, utr5_offset, (end-start)+utr3_offset, rlen_min, rlen_max, klist)
-        i += 1
-        sys.stdout.write("processed transcript {0}.\t\r".format(i))
-        sys.stdout.flush()
-    sys.stdout.write("\n")
-    return cobs
-
 def construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max):
     cobs = {}
     i = 0
