@@ -36,7 +36,8 @@ class single_transcript_obj(object):
     def __call__(self, params):
         tid, cobs, ptrue, eps = params
         abd = { rlen: sum(p) for rlen, p in cobs.iteritems() }
-        pobs = { rlen: p/float(abd[rlen]) for rlen, p in cobs.iteritems() }
+        pobs = { rlen: p/float(abd[rlen]) for rlen, p in cobs.iteritems() \
+                 if rlen in eps }
         select = { rlen: p>0 for rlen, p in cobs.iteritems() }
         ptrue_init = initiate_ptrue(cobs)
         before_tot, before_obs, before_true = compute_tot_obj(ptrue_init, abd, pobs, self.klist, select, self.b, None, False)
@@ -45,7 +46,7 @@ class single_transcript_obj(object):
 
 def compute_objs(b, klist, cobs, ptrue, eps):
     print "in compute_objs"
-    params_list = [ (tid, cobs[tid], ptrue[tid], eps[tid]) for tid in ptrue ]
+    params_list = [ (tid, cobs[tid], ptrue[tid], eps[tid]) for tid in eps if len(eps[tid])>1 ]
     pool = Pool(processes=nproc)
     # 0-tid 1-before_tot 2-before_obs 3-before_true 4-after_tot 5-after_obs 6-after_true
     result = [ r for r in pool.imap_unordered(single_transcript_obj(b,klist), params_list, 10) ]
@@ -91,7 +92,8 @@ def compare_frame(cobs, ptrue, eps, ofname):
     frame_after = []
     i = 0
     for tid in ptrue:
-        cobs_merge = merge_profiles(cobs[tid])
+        if len(eps[tid])<2: continue
+        cobs_merge = merge_profiles({rlen:prof for rlen, prof in cobs[tid].iteritems() if rlen in eps[tid] })
         ctrue = estimate_ctrue(ptrue[tid], eps[tid], cobs[tid])
         ctrue_merge = merge_profiles(ctrue)
         frame_before.append(get_frame_portion(cobs_merge))
@@ -114,6 +116,7 @@ def compare_frame(cobs, ptrue, eps, ofname):
 def correlate_true_before_after(cobs, ptrue, eps, ofname):
     corr_list = []
     for tid in ptrue:
+        if len(eps[tid])<2: continue
         if 28 not in cobs[tid]: continue
         ptrue_init = cobs[tid][28]
         ctrue = estimate_ctrue(ptrue[tid], eps[tid], cobs[tid])
@@ -141,6 +144,7 @@ def compare_ptrue_correlation(cobs, cobs_shift, ptrue, eps, ofname):
     chist_final = {}
     i = 0
     for tid in ptrue:
+        if len(eps[tid])<2: continue
         ptrue_init = initiate_ptrue(cobs[tid])
         rlen_list = list(set(eps[tid].keys()) & set(cobs[tid].keys()))
         cobs_tmp = { rlen : cobs[tid][rlen] for rlen in rlen_list }
