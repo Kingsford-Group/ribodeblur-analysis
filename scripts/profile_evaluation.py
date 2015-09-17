@@ -33,6 +33,7 @@ class single_transcript_obj(object):
     def __init__(self, blur_vec, klist):
         self.b = blur_vec
         self.klist = klist
+
     def __call__(self, params):
         tid, cobs, ptrue, eps = params
         abd = { rlen: sum(p) for rlen, p in cobs.iteritems() }
@@ -44,9 +45,9 @@ class single_transcript_obj(object):
         after_tot, after_obs, after_true = compute_tot_obj(ptrue, abd, pobs, self.klist, select, self.b, eps, False)
         return tid, before_tot, before_obs, before_true, after_tot, after_obs, after_true
 
-def compute_objs(b, klist, cobs, ptrue, eps):
+def compute_objs(b, klist, cobs, ptrue, eps, min_prof_cnt):
     print "in compute_objs"
-    params_list = [ (tid, cobs[tid], ptrue[tid], eps[tid]) for tid in eps if len(eps[tid])>1 ]
+    params_list = [ (tid, cobs[tid], ptrue[tid], eps[tid]) for tid in eps if len(eps[tid])> min_prof_cnt ]
     pool = Pool(processes=nproc)
     # 0-tid 1-before_tot 2-before_obs 3-before_true 4-after_tot 5-after_obs 6-after_true
     result = [ r for r in pool.imap_unordered(single_transcript_obj(b,klist), params_list, 10) ]
@@ -57,10 +58,10 @@ def compute_objs(b, klist, cobs, ptrue, eps):
     obj_after = { result[i][0] : result[i][5] for i in xrange(len(result)) }
     return obj_before, obj_after
 
-def compare_pobs_fit(b, klist, cobs, ptrue, eps, ofname):
+def compare_pobs_fit(b, klist, cobs, ptrue, eps, min_prof_cnt, ofname):
     abd_list = []
     improve_list = []
-    obj_before, obj_after = compute_objs(b, klist, cobs, ptrue, eps)
+    obj_before, obj_after = compute_objs(b, klist, cobs, ptrue, eps, min_prof_cnt)
     i = 0
     for tid in obj_before:
         abd = sum(map(sum, cobs[tid].values()))/float(len(cobs[tid].values()[0]))
@@ -87,12 +88,12 @@ def compare_pobs_fit(b, klist, cobs, ptrue, eps, ofname):
 def get_frame_portion(vec, frame=0):
     return sum(vec[frame::3])/float(sum(vec)) if np.any(vec!=0) else 0
 
-def compare_frame(cobs, ptrue, eps, ofname):
+def compare_frame(cobs, ptrue, eps, min_prof_cnt, ofname):
     frame_before = []
     frame_after = []
     i = 0
     for tid in ptrue:
-        if len(eps[tid])<2: continue
+        if len(eps[tid])<= min_prof_cnt : continue
         cobs_merge = merge_profiles({rlen:prof for rlen, prof in cobs[tid].iteritems() if rlen in eps[tid] })
         ctrue = estimate_ctrue(ptrue[tid], eps[tid], cobs[tid])
         ctrue_merge = merge_profiles(ctrue)
@@ -113,10 +114,10 @@ def compare_frame(cobs, ptrue, eps, ofname):
     print "improving rate: {0:.2%} total: {1}".format(np.mean(np.array(frame_before)<=np.array(frame_after)), len(frame_before))
     print "average frame portion: before: {0:.2f} after: {1:.2f} mwu: {2:.2e}".format(np.mean(frame_before), np.mean(frame_after), scipy.stats.mannwhitneyu(frame_before, frame_after)[1])
 
-def correlate_true_before_after(cobs, ptrue, eps, ofname):
+def correlate_true_before_after(cobs, ptrue, eps, min_prof_cnt, ofname):
     corr_list = []
     for tid in ptrue:
-        if len(eps[tid])<2: continue
+        if len(eps[tid])<= min_prof_cnt: continue
         if 28 not in cobs[tid]: continue
         ptrue_init = cobs[tid][28]
         ctrue = estimate_ctrue(ptrue[tid], eps[tid], cobs[tid])
@@ -137,14 +138,14 @@ def include_corr_to_hist(chist, corr_list):
     for rlen, corr in corr_list.iteritems():
         chist.setdefault(rlen, []).append(corr)
 
-def compare_ptrue_correlation(cobs, cobs_shift, ptrue, eps, ofname):
+def compare_ptrue_correlation(cobs, cobs_shift, ptrue, eps, min_prof_cnt, ofname):
     chist_before = {}
     chist_middle = {}
     chist_after = {}
     chist_final = {}
     i = 0
     for tid in ptrue:
-        if len(eps[tid])<2: continue
+        if len(eps[tid])<= min_prof_cnt : continue
         ptrue_init = initiate_ptrue(cobs[tid])
         rlen_list = list(set(eps[tid].keys()) & set(cobs[tid].keys()))
         cobs_tmp = { rlen : cobs[tid][rlen] for rlen in rlen_list }
@@ -221,10 +222,10 @@ if __name__ == "__main__":
     cobs = construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max)
     cobs_shift = build_cobs_with_shifts(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max, klist)
     print "compare least square of pobs fitting"
-    compare_pobs_fit(b, klist, cobs, ptrue, eps, odir+fname+"_cmp_pobs.pdf")
+    compare_pobs_fit(b, klist, cobs, ptrue, eps, min_prof_cnt, odir+fname+"_cmp_pobs.pdf")
     print "compare frame distribution"
-    compare_frame(cobs, ptrue, eps, odir+fname+"_cmp_frame.png")
+    compare_frame(cobs, ptrue, eps, min_prof_cnt, odir+fname+"_cmp_frame.png")
     print "compare correlation of ptrue"
-    compare_ptrue_correlation(cobs, cobs_shift, ptrue, eps, odir+fname+"_cmp_corr.pdf")
+    compare_ptrue_correlation(cobs, cobs_shift, ptrue, eps, min_prof_cnt, odir+fname+"_cmp_corr.pdf")
     print "compare ptrue with 28-mers"
-    correlate_true_before_after(cobs, ptrue, eps, odir+fname+"_cmp_true.pdf")
+    correlate_true_before_after(cobs, ptrue, eps, min_prof_cnt, odir+fname+"_cmp_true.pdf")

@@ -15,3 +15,4 @@ cnt_threshold = 0
 klist = {rlen: 28-rlen for rlen in xrange(rlen_min, rlen_max+1) }
 lowest_frame_percent = 0.4 # threshold to accept a read length
 lowest_frame_cnt = 10 # meta profile has to have enough coverage to train blur vector
+min_prof_cnt = 0 # minimum number of read length profiles to include a transcript
