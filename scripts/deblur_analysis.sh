@@ -1,0 +1,1 @@
+python elongation_rate.py ~/scratch/scratch2/ribomap-playground/yeast/ref/protein_coding_100_filtered.fasta ~/scratch/scratch2/ribomap-playground/yeast/ref/cds_range.txt ../outputs/BY_FP_hc.hist ../figures/Albert14/BY_FP_rlen_5p.vblur ../figures/Albert14/BY_FP_hc.eps  ../figures/test/
