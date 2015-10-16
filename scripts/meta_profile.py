@@ -208,7 +208,7 @@ def plot_rlen_hist_pipe():
     hist_fn = sys.argv[1]
     cds_txt = sys.argv[2]
     odir = sys.argv[3]
-    # imax = 50
+    imax = 50
     min_sample_cnt = 100
     ensure_dir(odir)
     cds_range = get_cds_range(cds_txt)
