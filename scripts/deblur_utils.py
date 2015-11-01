@@ -466,6 +466,19 @@ def train_vblur_from_meta_profiles(cobs, klist, low, percentile, converge_cutoff
     b, ptrue, eps = train_blur_vec(cobs, ptrue, abd, b, klist, low, percentile, converge_cutoff, pos_list, estep, ofname)
     return b, ptrue, eps
 
+def recover_sparse_true_profile(cobs, klist, b):
+    abd = get_abundance(cobs)
+    plen = len(cobs.values()[0])
+    Amerge = np.zeros((plen, plen))
+    bmerge = np.zeros(plen)
+    for rlen in abd:
+        Amerge += build_true_A(abd[rlen]*b[rlen], klist[rlen], plen, plen, False)
+        bmerge += cobs[rlen]
+    ptrue, res = scipy.optimize.nnls(Amerge, bmerge)
+    ptrue /= np.sum(ptrue)
+    ptrue *= sum(abd.values())
+    return ptrue
+
 def recover_true_profile(cobs, klist, b, low, percentile, converge_cutoff, ofname=None):
     abd = get_abundance(cobs)
     ptrue = initiate_ptrue(cobs)

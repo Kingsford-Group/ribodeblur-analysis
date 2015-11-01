@@ -39,7 +39,7 @@ def separate_high_cover_rlen_profile(cobs, cover_ratio=0.5, cnt_threshold=0):
             cobs_lc[rlen] = prof
     return cobs_hc, cobs_lc
 
-class single_transcript_asite(object):
+class single_transcript_asite_shift(object):
     def __init__(self, blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold):
         self.b = blur_vec
         self.k = klist
@@ -65,6 +65,42 @@ class single_transcript_asite(object):
         else:
             ptrue = None
             eps = None
+        ctrue_merge = merge_profiles(ctrue)
+        return tid, ctrue_merge, ptrue, eps
+
+class single_transcript_asite_deblur(object):
+    def __init__(self, blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold):
+        self.b = blur_vec
+        self.k = klist
+        self.c = converge_cutoff
+        self.cover_ratio = cover_ratio
+        self.cnt_threshold = cnt_threshold
+
+    def __call__(self, params):
+        tid = params[0]
+        cobs = params[1]
+        cobs_hc, cobs_lc = separate_high_cover_rlen_profile(cobs, self.cover_ratio, self.cnt_threshold)
+        ctrue = {}
+        if len(cobs_hc)!=0:
+            ptrue, eps = recover_true_profile(cobs_hc, self.k, self.b, 0, 100, self.c)
+            # deblur failed, merge high-coverage profiles to low-coverage profiles
+            if ptrue is None: 
+                cobs_lc.update(cobs_hc)
+            else:
+                ctrue_hc = estimate_ctrue(ptrue, eps, cobs_hc)
+                ctrue.update(ctrue_hc)
+                # deblur partially failed, merge failed profiles to low-coverage profiles
+                if len(eps) != len(cobs_hc):
+                    cobs_failed = {rlen:prof for rlen,prof in cobs_hc.iteritems() if rlen not in eps}
+                    cobs_lc.update(cobs_failed)
+        else:
+            ptrue = None
+            eps = None
+        if len(cobs_lc) != 0:
+            # deblur the rest all together
+            # use rlen=0 to store this one
+            ctrue_lc = recover_sparse_true_profile(cobs_ls, self.k, self.b)
+            ctrue[0] = ctrue_lc
         ctrue_merge = merge_profiles(ctrue)
         return tid, ctrue_merge, ptrue, eps
 
