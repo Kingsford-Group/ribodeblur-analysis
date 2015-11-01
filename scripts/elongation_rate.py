@@ -273,10 +273,12 @@ if __name__ == "__main__":
     # plt.xlabel('estimated codon decoding time before deblur')
     # plt.ylabel('estimated codon decoding time after deblur')
     # plt.show()
-
+    
     from wobble_pairing import *
     get_diff = lambda codon_dic, wobble_pairs: [ (codon_dic[cwb]-codon_dic[cwc])/float(codon_dic[cwc]) for cwc, cwb in wobble_pairs ]
     get_2base = lambda wobble_pairs: [ cwc[:2] for cwc, cwb in wobble_pairs ]
+    ymin = -0.1
+    ymax = 0.3
     print "GCU"
     blur_list = np.array(get_diff(skew_blur, GCU_pairs))
     deblur_list = np.array(get_diff(skew_deblur, GCU_pairs))
@@ -287,10 +289,11 @@ if __name__ == "__main__":
     names = names[order]
     plt.figure(figsize=(len(names)/2.0, 5))
     x = range(0,len(names)*2, 2)
-    plt.bar(x,blur_list, color='g', edgecolor='white', alpha=0.2)
+    plt.bar(x,blur_list, color='b', edgecolor='white', alpha=0.2)
     x = range(1,len(names)*2+1, 2)
-    plt.bar(x,deblur_list, color='g', edgecolor='white', alpha=0.6)
+    plt.bar(x,deblur_list, color='b', edgecolor='white', alpha=0.6)
     plt.xticks(x, names, rotation='vertical', fontsize=12)
+    plt.ylim((ymin,ymax))
     plt.savefig(odir+"skew_GCU_diff.pdf", bbox_inches='tight')
     plt.close()
     print "mean diff: deblur: {0} blur: {1}".format(np.mean(deblur_list), np.mean(blur_list))
@@ -304,10 +307,11 @@ if __name__ == "__main__":
     names = names[order]
     plt.figure(figsize=(len(names)/2.0, 5))
     x = range(0,len(names)*2, 2)
-    plt.bar(x,blur_list, color='b', edgecolor='white', alpha=0.2)
+    plt.bar(x,blur_list, color='r', edgecolor='white', alpha=0.2)
     x = range(1,len(names)*2+1, 2)
-    plt.bar(x,deblur_list, color='b', edgecolor='white', alpha=0.6)
+    plt.bar(x,deblur_list, color='r', edgecolor='white', alpha=0.6)
     plt.xticks(x, names, rotation='vertical', fontsize=12)
+    plt.ylim((ymin,ymax))
     plt.savefig(odir+"skew_ICU_diff.pdf", bbox_inches='tight')
     plt.close()
     print "mean diff: deblur: {0} blur: {1}".format(np.mean(deblur_list), np.mean(blur_list))
@@ -321,10 +325,11 @@ if __name__ == "__main__":
     names = names[order]
     plt.figure(figsize=(len(names)/2.0, 5))
     x = range(0,len(names)*2, 2)
-    plt.bar(x,blur_list, color='r', edgecolor='white', alpha=0.2)
+    plt.bar(x,blur_list, color='g', edgecolor='white', alpha=0.2)
     x = range(1,len(names)*2+1, 2)
-    plt.bar(x,deblur_list, color='r', edgecolor='white', alpha=0.6)
+    plt.bar(x,deblur_list, color='g', edgecolor='white', alpha=0.6)
     plt.xticks(x, names, rotation='vertical', fontsize=12)
+    plt.ylim((ymin,ymax))
     plt.savefig(odir+"skew_UAG_diff.pdf", bbox_inches='tight')
     plt.close()
     print "mean diff: deblur: {0} blur: {1}".format(np.mean(deblur_list), np.mean(blur_list))

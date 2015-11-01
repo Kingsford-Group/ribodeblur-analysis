@@ -74,6 +74,7 @@ def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset,
     tid_all = np.array(tprofile.keys())
     cobs_in = cobs_all[cobs_len_all!=0]
     tid_in = tid_all[cobs_len_all!=0]
+    print "total transcripts with legit cobs {0}".format(len(tid_in))
     print "batch A-site recovery"
     pool = Pool(processes=nproc)
     results = [ r for r in pool.imap_unordered(single_transcript_asite(blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold), zip(tid_in, cobs_in), 10) ]
@@ -87,8 +88,8 @@ def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset,
     ctrue = dict(zip(tid_list, ctrue_list))
     ptrue = dict(zip(tid_list[valid], ptrue_list[valid]))
     eps = dict(zip(tid_list[valid], eps_list[valid]))
-    print "\ntotal deblurred transcripts: {0}".format(len(ptrue))
-    print "\ntotal processed transcripts: {0}".format(len(ctrue))
+    print "total deblurred transcripts: {0}".format(len(ptrue))
+    print "total processed transcripts: {0}".format(len(ctrue))
     return ctrue, ptrue, eps
 
 def batch_Asite_recovery(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold, nproc):
