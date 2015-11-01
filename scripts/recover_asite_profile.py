@@ -99,7 +99,7 @@ class single_transcript_asite_deblur(object):
         if len(cobs_lc) != 0:
             # deblur the rest all together
             # use rlen=0 to store this one
-            ctrue_lc = recover_sparse_true_profile(cobs_ls, self.k, self.b)
+            ctrue_lc = recover_sparse_true_profile(cobs_lc, self.k, self.b)
             ctrue[0] = ctrue_lc
         ctrue_merge = merge_profiles(ctrue)
         return tid, ctrue_merge, ptrue, eps
@@ -113,7 +113,7 @@ def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset,
     print "total transcripts with legit cobs {0}".format(len(tid_in))
     print "batch A-site recovery"
     pool = Pool(processes=nproc)
-    results = [ r for r in pool.imap_unordered(single_transcript_asite(blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold), zip(tid_in, cobs_in), 10) ]
+    results = [ r for r in pool.imap_unordered(single_transcript_asite_deblur(blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold), zip(tid_in, cobs_in), 100) ]
     pool.close()
     pool.join()
     tid_list, ctrue_list, ptrue_list, eps_list = zip(*results)
@@ -129,8 +129,9 @@ def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset,
     return ctrue, ptrue, eps
 
 def batch_Asite_recovery(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold, nproc):
-    from celebrity_profile import plot_transcript
+    ctrue = {}
     ptrue = {}
+    eps = {}
     i = 0
     tlen = np.array([ cds_range[tid][1]-cds_range[tid][0] for tid in cds_range ])
     tid_list = np.array(cds_range.keys())
@@ -144,11 +145,35 @@ def batch_Asite_recovery(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min
         start, end = cds_range[tid]
         cobs = build_cobs_for_deblur(tprofile[tid], utr5_offset, (end-start)+utr3_offset, rlen_min, rlen_max)
         if len(cobs) == 0: continue
-        deblurer = single_transcript_asite(blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold)
-        tid, ctrue, ptrue_tid, eps_tid = deblurer((tid,cobs))
-        ptrue[tid] = ctrue
+        deblurer = single_transcript_asite_deblur(blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold)
+        tid, ctrue_tid, ptrue_tid, eps_tid = deblurer((tid,cobs))
+        ctrue[tid] = ctrue_tid
+        ptrue[tid] = ptrue_tid
+        eps[tid] = eps_tid
+        cobs_merge = merge_profiles(cobs)
+        x_pos = np.arange(len(ctrue_tid))
+        figwidth = len(x_pos)/10.0*1.5
+        fig = plt.figure(figsize=(figwidth, 13))
+        ax = fig.add_subplot(2,1,1)
+        plt.bar(x_pos-0.4, cobs_merge, width=0.8, color='b', edgecolor='white', alpha=0.3)
+        yheight = max(cobs_merge)+1
+        plt.ylim((0,yheight))
+        xgrid = x_pos[::3]
+        plt.bar(xgrid-0.4, [yheight]*len(xgrid), width=0.8, color='r', edgecolor='white', alpha=0.1)
+        plt.xlim((x_pos[0]-1, x_pos[-1]+1))
+        plt.title("Before deblur".format(tid))
+        ax = fig.add_subplot(2,1,2)
+        plt.bar(x_pos-0.4, ctrue_tid, width=0.8, color='b', edgecolor='white', alpha=0.3)
+        yheight = max(ctrue_tid)+1
+        plt.bar(xgrid-0.4, [yheight]*len(xgrid), width=0.8, color='r', edgecolor='white', alpha=0.1)
+        plt.ylim((0,yheight))
+        plt.xlim((x_pos[0]-1, x_pos[-1]+1))
+        plt.title("After deblur")
+        plt.tight_layout()
+        plt.savefig("{0}.pdf".format(tid), bbox_inches='tight')
+        if i>10: break
     print "\ntotal deblurred transcripts: {0}".format(len(ptrue))
-    return ptrue
+    return ctrue, ptrue, eps
 
 def batch_build_Aprof(prof_dic, cds_range, utr5_offset, asite_offset):
     aprof = {}
