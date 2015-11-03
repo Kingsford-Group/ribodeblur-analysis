@@ -101,10 +101,10 @@ def read_cds_profile(fname):
             tid = line.lstrip("tid: ").rstrip("\n")
             line = tf.readline()
             prof = map(float, line.rstrip("\n").split("\t"))
-            base_prof[tid] = prof
-            line = tf.readline()
+            base_prof[tid] = np.array(prof)
             sys.stdout.write("processed transcripts {0}.\t\r".format(i))
             sys.stdout.flush()
+        line = tf.readline()
     sys.stdout.write("\n")
     tf.close()
     return base_prof
