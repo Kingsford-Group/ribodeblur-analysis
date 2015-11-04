@@ -78,31 +78,31 @@ class single_transcript_asite_deblur(object):
 
     def __call__(self, params):
         tid = params[0]
-        cobs = params[1]
-        cobs_hc, cobs_lc = separate_high_cover_rlen_profile(cobs, self.cover_ratio, self.cnt_threshold)
-        ctrue = {}
+        cobs_loc = params[1]
+        cobs_hc, cobs_lc = separate_high_cover_rlen_profile(cobs_loc, self.cover_ratio, self.cnt_threshold)
+        ctrue_loc = {}
         if len(cobs_hc)!=0:
-            ptrue, eps = recover_true_profile(cobs_hc, self.k, self.b, 0, 100, self.c)
+            ptrue_loc, eps_loc = recover_true_profile(cobs_hc, self.k, self.b, 0, 100, self.c)
             # deblur failed, merge high-coverage profiles to low-coverage profiles
-            if ptrue is None: 
+            if ptrue_loc is None: 
                 cobs_lc.update(cobs_hc)
             else:
-                ctrue_hc = estimate_ctrue(ptrue, eps, cobs_hc)
+                ctrue_hc = estimate_ctrue(ptrue_loc, eps_loc, cobs_hc)
                 ctrue.update(ctrue_hc)
                 # deblur partially failed, merge failed profiles to low-coverage profiles
-                if len(eps) != len(cobs_hc):
+                if len(eps_loc) != len(cobs_hc):
                     cobs_failed = {rlen:prof for rlen,prof in cobs_hc.iteritems() if rlen not in eps}
                     cobs_lc.update(cobs_failed)
         else:
-            ptrue = None
-            eps = None
+            ptrue_loc = None
+            eps_loc = None
         if len(cobs_lc) != 0:
             # deblur the rest all together
             # use rlen=0 to store this one
             ctrue_lc = recover_sparse_true_profile(cobs_lc, self.k, self.b)
-            ctrue[0] = ctrue_lc
-        ctrue_merge = merge_profiles(ctrue)
-        return tid, ctrue_merge, ptrue, eps
+            ctrue_loc[0] = ctrue_lc
+        ctrue_merge = merge_profiles(ctrue_loc)
+        return tid, ctrue_merge, ptrue_loc, eps_loc
 
 def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold, nproc):
     cobs_all = np.array([ build_cobs_for_deblur(prof, utr5_offset, (cds_range[tid][1]-cds_range[tid][0])+utr3_offset, rlen_min, rlen_max) for tid,prof in tprofile.iteritems() ])
@@ -124,6 +124,7 @@ def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset,
     ctrue = dict(zip(tid_list, ctrue_list))
     ptrue = dict(zip(tid_list[valid], ptrue_list[valid]))
     eps = dict(zip(tid_list[valid], eps_list[valid]))
+    print np.sum([ np.sum(merge_profiles(cobs_in[i])) for i in xrange(len(cobs_in))])
     print "total deblurred transcripts: {0}".format(len(ptrue))
     print "total processed transcripts: {0}".format(len(ctrue))
     return ctrue, ptrue, eps
@@ -137,19 +138,22 @@ def batch_Asite_recovery(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min
     tid_list = np.array(cds_range.keys())
     order = np.argsort(tlen)
     tid_list = tid_list[order]
+    osum = 0
     for tid in tid_list:
         if tid not in tprofile: continue
-        i += 1
         sys.stdout.write("deblur {0}th transcript: {1}\t\t\r".format(i, tid))
         sys.stdout.flush()        
         start, end = cds_range[tid]
         cobs = build_cobs_for_deblur(tprofile[tid], utr5_offset, (end-start)+utr3_offset, rlen_min, rlen_max)
         if len(cobs) == 0: continue
+        i += 1
         deblurer = single_transcript_asite_deblur(blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold)
         tid, ctrue_tid, ptrue_tid, eps_tid = deblurer((tid,cobs))
+        osum += np.sum(merge_profiles(cobs))
         ctrue[tid] = ctrue_tid
         ptrue[tid] = ptrue_tid
         eps[tid] = eps_tid
+        """
         cobs_merge = merge_profiles(cobs)
         x_pos = np.arange(len(ctrue_tid))
         figwidth = len(x_pos)/10.0*1.5
@@ -171,8 +175,10 @@ def batch_Asite_recovery(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min
         plt.title("After deblur")
         plt.tight_layout()
         plt.savefig("{0}.pdf".format(tid), bbox_inches='tight')
-        if i>10: break
+        """
+        if i>100: break
     print "\ntotal deblurred transcripts: {0}".format(len(ptrue))
+    print osum
     return ctrue, ptrue, eps
 
 def batch_build_Aprof(prof_dic, cds_range, utr5_offset, asite_offset):
@@ -202,6 +208,8 @@ def main():
     # build profile for each transcript per read length
     tprofile = get_transcript_profiles(tlist, cds_range, utr5_offset, utr3_offset)
     ctrue, ptrue, eps = batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max, b, klist, converge_cutoff, cover_ratio, cnt_threshold, nproc)
+    tsum = np.sum([ np.sum(prof) for tid, prof in ctrue.iteritems() ])
+    print tsum
     base_prof = batch_build_Aprof(ctrue, cds_range, -utr5_offset, asite_offset)
     ofname = odir + get_file_core(hist_fn) + "_cds.base"
     write_cds_profile(base_prof, ofname)

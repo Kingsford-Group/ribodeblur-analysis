@@ -8,7 +8,7 @@ rlen_min = 14
 rlen_max = 35
 low = -1 # cobs filter lower bound
 percentile = 98.35 # cobs outlier filter percentile
-nproc = 30 # number of processes to use
+nproc = 20 # number of processes to use
 # for filter highly covered profiles
 cover_ratio = 0.5
 cnt_threshold = 0
