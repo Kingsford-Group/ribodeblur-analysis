@@ -474,7 +474,10 @@ def recover_sparse_true_profile(cobs, klist, b):
     for rlen in abd:
         Amerge += build_true_A(abd[rlen]*b[rlen], klist[rlen], plen, plen, False)
         bmerge += cobs[rlen]
-    ptrue, res = scipy.optimize.nnls(Amerge, bmerge)
+    try:
+        ptrue, res = scipy.optimize.nnls(Amerge, bmerge)
+    except RuntimeError:
+        return None
     ptrue /= np.sum(ptrue)
     ptrue *= sum(abd.values())
     return ptrue
