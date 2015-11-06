@@ -32,6 +32,8 @@ def read_vblur(fname):
     return b
     
 def write_essentials(ptrue, eps, ofname):
+    if len(ptrue)==0:
+        return
     tf = open(ofname, 'wb')
     i = 0
     for tid, prof in ptrue.iteritems():
@@ -78,6 +80,8 @@ def read_essentials(fname):
     return ptrue, eps
 
 def write_cds_profile(base_prof, ofname):
+    if len(base_prof) == 0:
+        return
     tf = open(ofname, 'wb')
     i = 0
     for tid, prof in base_prof.iteritems():

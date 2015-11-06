@@ -122,14 +122,17 @@ def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset,
     pool.join()
     tid_list, ctrue_list, ptrue_list, eps_list = zip(*results)
     tid_list = np.array(tid_list)
+    ctrue_list = np.array(ctrue_list)
     ptrue_list = np.array(ptrue_list)
     eps_list = np.array(eps_list)
     valid = np.array(map(lambda x: x != None, ctrue_list))
     ctrue = dict(zip(tid_list[valid], ctrue_list[valid]))
+    tid2idx = { tid:i for i,tid in enumerate(tid_in) }
+    print "cobs sum", np.sum([ np.sum(merge_profiles(cobs_in[tid2idx[tid]])) for tid in tid_list[valid]])
+    print "ctrue sum", np.sum(map(np.sum, ctrue_list[valid]))
     valid = np.array(map(lambda x: x != None, ptrue_list))
     ptrue = dict(zip(tid_list[valid], ptrue_list[valid]))
     eps = dict(zip(tid_list[valid], eps_list[valid]))
-    print np.sum([ np.sum(merge_profiles(cobs_in[i])) for i in xrange(len(cobs_in))])
     print "total deblurred transcripts: {0}".format(len(ptrue))
     print "total processed transcripts: {0}".format(len(ctrue))
     return ctrue, ptrue, eps
@@ -213,8 +216,6 @@ def main():
     # build profile for each transcript per read length
     tprofile = get_transcript_profiles(tlist, cds_range, utr5_offset, utr3_offset)
     ctrue, ptrue, eps = batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max, b, klist, converge_cutoff, cover_ratio, cnt_threshold, nproc)
-    tsum = np.sum([ np.sum(prof) for tid, prof in ctrue.iteritems() ])
-    print tsum
     base_prof = batch_build_Aprof(ctrue, cds_range, -utr5_offset, asite_offset)
     ofname = odir + get_file_core(hist_fn) + "_cds.base"
     write_cds_profile(base_prof, ofname)

@@ -467,8 +467,8 @@ def train_vblur_from_meta_profiles(cobs, klist, low, percentile, converge_cutoff
     return b, ptrue, eps
 
 def validate_profile(vec):
-    # > 50% cnts > 0
-    return np.mean(vec>0) >= 0.5
+    # > 10% cnts > 0
+    return np.mean(vec>0) > 0.1
 
 def recover_sparse_true_profile(cobs, klist, b):
     abd = get_abundance(cobs)
@@ -487,7 +487,7 @@ def recover_sparse_true_profile(cobs, klist, b):
             ptrue *= sum(abd.values())
             return ptrue
         else:
-            print "profile too sparse to even try recover_sparse_true_profile!"
+            # print "profile too sparse to even try recover_sparse_true_profile!"
             return None
 
 def recover_true_profile(cobs, klist, b, low, percentile, converge_cutoff, ofname=None):
@@ -543,7 +543,7 @@ def recover_true_profile(cobs, klist, b, low, percentile, converge_cutoff, ofnam
         ptrue = ptrue_curr
         obj_tot, obj_obs, obj_true = compute_tot_obj(ptrue, abd, pobs, klist, select, b, eps_rlen, False)
         if obs_list[0] < obj_obs : 
-            print "deblur cannot model this profile!"
+            # print "deblur cannot model this profile!"
             return None, None
         if (obs_list[-1] - obj_obs)/float(obs_list[-1]) < converge_cutoff:
             converge = True
