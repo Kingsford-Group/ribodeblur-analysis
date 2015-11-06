@@ -466,6 +466,10 @@ def train_vblur_from_meta_profiles(cobs, klist, low, percentile, converge_cutoff
     b, ptrue, eps = train_blur_vec(cobs, ptrue, abd, b, klist, low, percentile, converge_cutoff, pos_list, estep, ofname)
     return b, ptrue, eps
 
+def validate_profile(vec):
+    # > 50% cnts > 0
+    return np.mean(vec>0) >= 0.5
+
 def recover_sparse_true_profile(cobs, klist, b):
     abd = get_abundance(cobs)
     plen = len(cobs.values()[0])
@@ -474,13 +478,17 @@ def recover_sparse_true_profile(cobs, klist, b):
     for rlen in abd:
         Amerge += build_true_A(abd[rlen]*b[rlen], klist[rlen], plen, plen, False)
         bmerge += cobs[rlen]
-    try:
-        ptrue, res = scipy.optimize.nnls(Amerge, bmerge)
-    except RuntimeError:
-        print "TOO MANY ITERATIONS IN NNLS!!!"
-    ptrue /= np.sum(ptrue)
-    ptrue *= sum(abd.values())
-    return ptrue
+        if validate_profile(bmerge):
+            try:
+                ptrue, res = scipy.optimize.nnls(Amerge, bmerge)
+            except RuntimeError:
+                print "TOO MANY ITERATIONS IN NNLS!!!"
+            ptrue /= np.sum(ptrue)
+            ptrue *= sum(abd.values())
+            return ptrue
+        else:
+            print "profile too sparse to even try recover_sparse_true_profile!"
+            return None
 
 def recover_true_profile(cobs, klist, b, low, percentile, converge_cutoff, ofname=None):
     abd = get_abundance(cobs)
