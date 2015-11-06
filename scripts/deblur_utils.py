@@ -39,10 +39,13 @@ def estimate_ctrue(ptrue, eps, cobs):
     ctrue = {}
     rlen_list = list(set(eps.keys()) & set(cobs.keys()))
     for rlen in rlen_list:
-        ctruer = sum(cobs[rlen]) * ( ptrue - eps[rlen])
-        # adjust negatives        
-        ctruer[ctruer<0] = 0
-        ctrue[rlen] = ctruer
+        ptrue_rlen = ptrue - eps[rlen]
+        # reset negatives
+        ptrue_rlen[ptrue_rlen<0] = 0
+        # re-normalization
+        ptrue_rlen /= np.sum(ptrue_rlen)
+        ctrue_rlen = sum(cobs[rlen]) * ptrue_rlen
+        ctrue[rlen] = ctrue_rlen
     return ctrue
 
 def batch_build_ctrue(ptrue, eps, cobs):
@@ -468,7 +471,7 @@ def train_vblur_from_meta_profiles(cobs, klist, low, percentile, converge_cutoff
 
 def validate_profile(vec):
     # > 10% cnts > 0
-    return np.mean(vec>0) > 0.1
+    return np.mean(vec>0) >= 0.1
 
 def recover_sparse_true_profile(cobs, klist, b):
     abd = get_abundance(cobs)
@@ -478,17 +481,17 @@ def recover_sparse_true_profile(cobs, klist, b):
     for rlen in abd:
         Amerge += build_true_A(abd[rlen]*b[rlen], klist[rlen], plen, plen, False)
         bmerge += cobs[rlen]
-        if validate_profile(bmerge):
-            try:
-                ptrue, res = scipy.optimize.nnls(Amerge, bmerge)
-            except RuntimeError:
-                print "TOO MANY ITERATIONS IN NNLS!!!"
-            ptrue /= np.sum(ptrue)
-            ptrue *= sum(abd.values())
-            return ptrue
-        else:
-            # print "profile too sparse to even try recover_sparse_true_profile!"
-            return None
+    if validate_profile(bmerge):
+        try:
+            ptrue, res = scipy.optimize.nnls(Amerge, bmerge)
+        except RuntimeError:
+            print "TOO MANY ITERATIONS IN NNLS!!!"
+        ptrue /= np.sum(ptrue)
+        ptrue *= sum(abd.values())
+        return ptrue
+    else:
+        # print "profile too sparse to even try recover_sparse_true_profile!"
+        return None
 
 def recover_true_profile(cobs, klist, b, low, percentile, converge_cutoff, ofname=None):
     abd = get_abundance(cobs)

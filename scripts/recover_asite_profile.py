@@ -88,6 +88,8 @@ class single_transcript_asite_deblur(object):
                 cobs_lc.update(cobs_hc)
             else:
                 ctrue_hc = estimate_ctrue(ptrue_loc, eps_loc, cobs_hc)
+                # print "after estimate_ctrue"
+                # print np.sum(map(np.sum, ctrue_hc.values())), np.sum(map(np.sum, cobs_hc.values()))
                 ctrue_loc.update(ctrue_hc)
                 # deblur partially failed, merge failed profiles to low-coverage profiles
                 if len(eps_loc) != len(cobs_hc):
@@ -104,6 +106,7 @@ class single_transcript_asite_deblur(object):
                 ctrue_loc[0] = ctrue_lc
         if len(ctrue_loc)!=0:
             ctrue_merge = merge_profiles(ctrue_loc)
+            #print sum(ctrue_merge), sum(map(np.sum, cobs_loc.values()))
         else:
             ctrue_merge = None
         return tid, ctrue_merge, ptrue_loc, eps_loc
