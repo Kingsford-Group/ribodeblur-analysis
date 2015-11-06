@@ -477,7 +477,7 @@ def recover_sparse_true_profile(cobs, klist, b):
     try:
         ptrue, res = scipy.optimize.nnls(Amerge, bmerge)
     except RuntimeError:
-        return None
+        print "TOO MANY ITERATIONS IN NNLS!!!"
     ptrue /= np.sum(ptrue)
     ptrue *= sum(abd.values())
     return ptrue
