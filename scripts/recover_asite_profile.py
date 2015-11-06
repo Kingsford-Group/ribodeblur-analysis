@@ -88,7 +88,7 @@ class single_transcript_asite_deblur(object):
                 cobs_lc.update(cobs_hc)
             else:
                 ctrue_hc = estimate_ctrue(ptrue_loc, eps_loc, cobs_hc)
-                ctrue.update(ctrue_hc)
+                ctrue_loc.update(ctrue_hc)
                 # deblur partially failed, merge failed profiles to low-coverage profiles
                 if len(eps_loc) != len(cobs_hc):
                     cobs_failed = {rlen:prof for rlen,prof in cobs_hc.iteritems() if rlen not in eps}
@@ -100,8 +100,12 @@ class single_transcript_asite_deblur(object):
             # deblur the rest all together
             # use rlen=0 to store this one
             ctrue_lc = recover_sparse_true_profile(cobs_lc, self.k, self.b)
-            ctrue_loc[0] = ctrue_lc
-        ctrue_merge = merge_profiles(ctrue_loc)
+            if ctrue_lc is not None:
+                ctrue_loc[0] = ctrue_lc
+        if len(ctrue_loc)!=0:
+            ctrue_merge = merge_profiles(ctrue_loc)
+        else:
+            ctrue_merge = None
         return tid, ctrue_merge, ptrue_loc, eps_loc
 
 def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset, rlen_min, rlen_max, blur_vec, klist, converge_cutoff, cover_ratio, cnt_threshold, nproc):
@@ -120,8 +124,9 @@ def batch_Asite_recovery_parallel(tprofile, cds_range, utr5_offset, utr3_offset,
     tid_list = np.array(tid_list)
     ptrue_list = np.array(ptrue_list)
     eps_list = np.array(eps_list)
+    valid = np.array(map(lambda x: x != None, ctrue_list))
+    ctrue = dict(zip(tid_list[valid], ctrue_list[valid]))
     valid = np.array(map(lambda x: x != None, ptrue_list))
-    ctrue = dict(zip(tid_list, ctrue_list))
     ptrue = dict(zip(tid_list[valid], ptrue_list[valid]))
     eps = dict(zip(tid_list[valid], eps_list[valid]))
     print np.sum([ np.sum(merge_profiles(cobs_in[i])) for i in xrange(len(cobs_in))])
