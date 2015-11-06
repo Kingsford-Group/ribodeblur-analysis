@@ -13,7 +13,7 @@ def plot_vblur(vblur, ofname=None):
     fig = plt.figure(figsize=(10,13))
     rlen_list = sorted(vblur.keys())
     for rlen in rlen_list:
-        ax = fig.add_subplot(6,3,j)
+        ax = fig.add_subplot(7,3,j)
         plt.plot(vblur[rlen], 'm-o', markeredgecolor='none')
         plt.title("{0}".format(rlen))
         j += 1
@@ -30,7 +30,10 @@ def get_max_frame_percent(vec, percentile=95):
         vsub = vec[i::3]
         threshold = np.percentile(vsub, percentile)
         fsum[i] = np.sum(vsub[vsub<=threshold])
-    return max(fsum)/float(sum(fsum))
+    if max(fsum)==0:
+        return 0
+    else:
+        return max(fsum)/float(sum(fsum))
 
 def get_min_mean_frame_cnt(vec, percentile=95):
     fmean = np.zeros(3)
