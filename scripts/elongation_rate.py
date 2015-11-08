@@ -99,28 +99,6 @@ def generate_codon_list_alphabetical():
                 codon_list.append(codon)
     return codon_list
 
-def plot_codon_hist_fitting(rc_list, params, pdf_func, xmin=1e-7, xmax=3, fn_prefix="fp"):
-    print "plot histograms"
-    fig = plt.figure(facecolor='white', figsize=(16, 16))
-    clist = generate_codon_list_alphabetical()
-    for i in xrange(len(clist)):
-        codon = clist[i]
-        if codon not in rc_list: continue
-        nrc_list = np.array(rc_list[codon])
-        ax = fig.add_subplot(8, 8, i)
-        ns,bins,patches = plt.hist(nrc_list, np.linspace(xmin,xmax,50), normed = True, histtype='stepfilled', log=False, color = 'c', edgecolor='c', alpha=0.4)
-        ymax = max(ns)
-        x = np.linspace(xmin, xmax, 10000)
-        y = pdf_func(x, params[codon])
-        plt.plot(x,y,'r-',lw=2, alpha=0.5)
-        ax.set_title(codon,fontsize=10)
-        ax.set_xlim((0,xmax))
-        ax.set_ylim((0,ymax+0.1))
-        plt.xticks(range(0,xmax+1))
-    plt.tight_layout()
-    plt.savefig(fn_prefix+"_codon_hist.png", bbox_inches='tight')
-    plt.close()
-
 def exclude_keys(dic, key_list):
     return { k:v for k,v in dic.iteritems() if k not in key_list }
 
