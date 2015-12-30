@@ -135,9 +135,12 @@ def get_tseq(fn, cds_range):
     tseq = {}
     for rec in SeqIO.parse(ifile, "fasta"):
         tid = rec.id.split()[0]
-        start, stop = cds_range[tid]
-        seq = str(rec.seq[start:stop])
-        tseq[tid] = seq
+        if cds_range == None:
+            tseq[tid] = str(rec.seq)
+        else:
+            start, stop = cds_range[tid]
+            seq = str(rec.seq[start:stop])
+            tseq[tid] = seq
     ifile.close()
     return tseq
 

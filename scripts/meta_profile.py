@@ -220,6 +220,7 @@ def plot_rlen_hist_pipe():
         print "{0}-mers: {1:.2%}".format(rlen, rlen2portion[rlen])
         tot_portion += rlen2portion[rlen]
     print "total: {0:.2%}".format(tot_portion)
+    exit(1)
     sframe = get_frame_str_from_tlist(tlist, cds_range)
     meta_hist = create_rlen_meta_profile(tlist, cds_range, tid_select, utr5_offset, imax)
     fn_prefix = odir+"/"+get_file_core(hist_fn)+"_start_{0}".format(imax)

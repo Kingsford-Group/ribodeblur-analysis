@@ -109,7 +109,7 @@ def compare_frame(cobs, ptrue, eps, min_prof_cnt, ofname):
     plt.xlabel("in-frame frequency", fontsize=16)
     plt.ylabel("number of transcripts", fontsize=16)
     plt.legend(["before deblur", "after deblur"], loc="upper left", frameon=False, fontsize=16)
-    plt.savefig(ofname, bbox_inches = 'tight')
+    plt.savefig(ofname, bbox_inches = 'tight', transparent=True)
     plt.close()
     print "improving rate: {0:.2%} total: {1}".format(np.mean(np.array(frame_before)<=np.array(frame_after)), len(frame_before))
     print "average frame portion: before: {0:.2f} after: {1:.2f} mwu: {2:.2e}".format(np.mean(frame_before), np.mean(frame_after), scipy.stats.mannwhitneyu(frame_before, frame_after)[1])
@@ -221,10 +221,11 @@ if __name__ == "__main__":
     tprofile = get_transcript_profiles(tlist, cds_range, utr5_offset, utr3_offset)
     cobs = construct_all_cobs(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max)
     cobs_shift = build_cobs_with_shifts(tprofile, cds_range, utr5_offset, utr3_offset, vrlen_min, vrlen_max, klist)
-    print "compare least square of pobs fitting"
-    compare_pobs_fit(b, klist, cobs, ptrue, eps, min_prof_cnt, odir+fname+"_cmp_pobs.pdf")
+    # print "compare least square of pobs fitting"
+    # compare_pobs_fit(b, klist, cobs, ptrue, eps, min_prof_cnt, odir+fname+"_cmp_pobs.pdf")
     print "compare frame distribution"
     compare_frame(cobs, ptrue, eps, min_prof_cnt, odir+fname+"_cmp_frame.png")
+    exit(1)
     print "compare correlation of ptrue"
     compare_ptrue_correlation(cobs, cobs_shift, ptrue, eps, min_prof_cnt, odir+fname+"_cmp_corr.pdf")
     print "compare ptrue with 28-mers"
