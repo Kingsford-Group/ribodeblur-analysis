@@ -6,7 +6,7 @@ Citation
 ------
 This page provides access to the source code and the instructions for running the pipelines to produce the results in the following manuscript:
 
-__Hao Wang, Joel McManus and Carl Kingsford__. *Accurate recovery of ribosome position signals reveals slow translation of wobble-pairing codons in yeast*. Under review (2015).
+__Hao Wang, Joel McManus and Carl Kingsford__. *Accurate recovery of ribosome position signals reveals slow translation of wobble-pairing codons in yeast*. In RECOMB 2016.
 
 Deblur pipeline
 ------
